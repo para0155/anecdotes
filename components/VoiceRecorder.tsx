@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { isSpeechSupported, startListening } from "@/lib/speech";
+import { isSpeechSupported, startListening, requestMicPermission } from "@/lib/speech";
 
 interface Props {
   onComplete: (text: string) => void;
@@ -12,16 +12,30 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interim, setInterim] = useState("");
+  const [error, setError] = useState("");
+  const [permissionAsked, setPermissionAsked] = useState(false);
   const sessionRef = useRef<ReturnType<typeof startListening>>(null);
 
   const supported = isSpeechSupported();
 
-  const toggleRecording = useCallback(() => {
+  const toggleRecording = useCallback(async () => {
     if (isRecording) {
       sessionRef.current?.stop();
       sessionRef.current = null;
       setIsRecording(false);
       return;
+    }
+
+    setError("");
+
+    // Vraag microfoon permissie eerst
+    if (!permissionAsked) {
+      const allowed = await requestMicPermission();
+      setPermissionAsked(true);
+      if (!allowed) {
+        setError("Microfoon toegang geweigerd. Sta microfoon toe in je browserinstellingen (klik op het slot-icoon in de adresbalk).");
+        return;
+      }
     }
 
     setIsRecording(true);
@@ -39,20 +53,32 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
       () => {
         setIsRecording(false);
         sessionRef.current = null;
+      },
+      (errMsg) => {
+        setError(errMsg);
+        setIsRecording(false);
+        sessionRef.current = null;
       }
     );
 
-    sessionRef.current = session;
-  }, [isRecording]);
+    if (!session) {
+      setIsRecording(false);
+    } else {
+      sessionRef.current = session;
+    }
+  }, [isRecording, permissionAsked]);
 
   if (!supported) {
     return (
       <div className="voice-modal">
         <h2>Spraakherkenning niet beschikbaar</h2>
         <p style={{ color: "var(--text-muted)" }}>
-          Je browser ondersteunt geen spraakherkenning. Gebruik Chrome of Edge voor de beste ervaring.
+          Je browser ondersteunt geen spraakherkenning. Open deze pagina in <strong>Google Chrome</strong> of <strong>Microsoft Edge</strong>.
         </p>
-        <button className="btn" onClick={onCancel}>Sluiten</button>
+        <p style={{ color: "var(--text-dim)", fontSize: "0.85rem", marginTop: 8 }}>
+          Safari ondersteunt dit helaas niet op desktop.
+        </p>
+        <button className="btn" onClick={onCancel} style={{ marginTop: 16 }}>Sluiten</button>
       </div>
     );
   }
@@ -72,6 +98,20 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
         }
       </p>
 
+      {error && (
+        <div style={{
+          background: "var(--danger-light)",
+          color: "var(--danger)",
+          padding: "10px 14px",
+          borderRadius: "var(--radius-sm)",
+          fontSize: "0.9rem",
+          width: "100%",
+          textAlign: "left"
+        }}>
+          {error}
+        </div>
+      )}
+
       <button
         className={`mic-btn ${isRecording ? "active" : ""}`}
         onClick={toggleRecording}
@@ -90,9 +130,6 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
           <span style={{ color: "var(--text-dim)", fontStyle: "italic" }}>
             Je tekst verschijnt hier...
           </span>
-        )}
-        {interim && (
-          <span style={{ color: "var(--text-dim)" }}> {interim}</span>
         )}
       </div>
 
