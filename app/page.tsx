@@ -143,22 +143,16 @@ export default function Home() {
               {showMenu && (
                 <>
                   <div style={{ position: "fixed", inset: 0, zIndex: 40 }} onClick={() => setShowMenu(false)} />
-                  <div style={{
-                    position: "absolute", right: 0, top: "100%", marginTop: 4,
-                    background: "var(--bg-card)", border: "1px solid var(--border)",
-                    borderRadius: "var(--radius-sm)", padding: 8,
-                    minWidth: 180, zIndex: 50,
-                    display: "flex", flexDirection: "column", gap: 4,
-                  }}>
-                    <button className="btn btn-sm" style={{ justifyContent: "flex-start", border: "none" }}
-                      onClick={() => { setView("stats"); setShowMenu(false); }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <div className="dropdown-menu">
+                    <button className="dropdown-item" onClick={() => { setView("stats"); setShowMenu(false); }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
                         <line x1="6" y1="20" x2="6" y2="14"/>
                       </svg>
                       Statistieken
                     </button>
-                    <div style={{ padding: "4px 12px" }} onClick={() => setShowMenu(false)}>
+                    <div className="dropdown-divider" />
+                    <div style={{ padding: "6px 8px" }} onClick={() => setShowMenu(false)}>
                       <ExportImport onImported={refresh} />
                     </div>
                   </div>

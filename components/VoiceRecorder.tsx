@@ -28,12 +28,11 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
 
     setError("");
 
-    // Vraag microfoon permissie eerst
     if (!permissionAsked) {
       const allowed = await requestMicPermission();
       setPermissionAsked(true);
       if (!allowed) {
-        setError("Microfoon toegang geweigerd. Sta microfoon toe in je browserinstellingen (klik op het slot-icoon in de adresbalk).");
+        setError("Microfoon toegang geweigerd. Sta microfoon toe in je browserinstellingen.");
         return;
       }
     }
@@ -71,14 +70,18 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
   if (!supported) {
     return (
       <div className="voice-modal">
-        <h2>Spraakherkenning niet beschikbaar</h2>
-        <p style={{ color: "var(--text-muted)" }}>
-          Je browser ondersteunt geen spraakherkenning. Open deze pagina in <strong>Google Chrome</strong> of <strong>Microsoft Edge</strong>.
+        <div style={{ width: 72, height: 72, borderRadius: "50%", background: "var(--danger-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </div>
+        <h2>Niet beschikbaar</h2>
+        <p style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+          Spraakherkenning wordt niet ondersteund in deze browser.<br />
+          Open de app in <strong>Google Chrome</strong> of <strong>Microsoft Edge</strong>.
         </p>
-        <p style={{ color: "var(--text-dim)", fontSize: "0.85rem", marginTop: 8 }}>
-          Safari ondersteunt dit helaas niet op desktop.
-        </p>
-        <button className="btn" onClick={onCancel} style={{ marginTop: 16 }}>Sluiten</button>
+        <button className="btn" onClick={onCancel} style={{ marginTop: 4 }}>Sluiten</button>
       </div>
     );
   }
@@ -98,26 +101,14 @@ export default function VoiceRecorder({ onComplete, onCancel }: Props) {
         }
       </p>
 
-      {error && (
-        <div style={{
-          background: "var(--danger-light)",
-          color: "var(--danger)",
-          padding: "10px 14px",
-          borderRadius: "var(--radius-sm)",
-          fontSize: "0.9rem",
-          width: "100%",
-          textAlign: "left"
-        }}>
-          {error}
-        </div>
-      )}
+      {error && <div className="error-box">{error}</div>}
 
       <button
         className={`mic-btn ${isRecording ? "active" : ""}`}
         onClick={toggleRecording}
-        style={{ width: 72, height: 72 }}
+        style={{ width: 80, height: 80, marginTop: 4, marginBottom: 4 }}
       >
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
           <line x1="12" y1="19" x2="12" y2="23"/>

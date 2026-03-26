@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Anekdotes",
@@ -13,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0f",
+  themeColor: "#06060b",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -25,11 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nl">
+    <html lang="nl" className={inter.variable}>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
