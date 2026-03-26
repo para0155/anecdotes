@@ -1239,6 +1239,148 @@ input[type="checkbox"] {
   border-color: rgba(124, 92, 224, 0.2);
 }
 
+/* ==================== */
+/* TIMELINE VIEW        */
+/* ==================== */
+.timeline-container {
+  position: relative;
+  padding-left: 32px;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--border) 100%);
+}
+
+.timeline-month-label {
+  position: relative;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 16px 0 8px 0;
+  margin-left: -32px;
+  padding-left: 32px;
+}
+
+.timeline-month-label::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 20px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 16px;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -28px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-card-solid);
+  border: 2px solid var(--accent);
+  z-index: 2;
+  transition: all 0.2s;
+}
+
+.timeline-item:hover .timeline-dot {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.timeline-connector {
+  position: absolute;
+  left: -24px;
+  top: 26px;
+  bottom: -16px;
+  width: 2px;
+  background: transparent;
+}
+
+.timeline-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  transition: all var(--transition);
+}
+
+.timeline-item:hover .timeline-card {
+  border-color: rgba(139, 108, 255, 0.25);
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+  .timeline-container {
+    padding-left: 50%;
+  }
+  .timeline-container::before {
+    left: 50%;
+    transform: translateX(-1px);
+  }
+  .timeline-month-label {
+    margin-left: -50%;
+    padding-left: calc(50% + 32px);
+    text-align: center;
+  }
+  .timeline-month-label::before {
+    left: calc(50% - 8px);
+  }
+  .timeline-item.timeline-left {
+    padding-right: calc(50% + 24px);
+    margin-left: calc(-50% + 24px);
+    text-align: right;
+  }
+  .timeline-item.timeline-left .timeline-dot {
+    left: auto;
+    right: -28px;
+  }
+  .timeline-item.timeline-left .timeline-card {
+    text-align: left;
+  }
+  .timeline-item.timeline-right {
+    margin-left: 24px;
+  }
+  .timeline-item.timeline-right .timeline-dot {
+    left: -28px;
+  }
+}
+
+/* ==================== */
+/* LOCK SCREEN & EXTRAS */
+/* ==================== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;

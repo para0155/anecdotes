@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Filters, SortOption } from "@/lib/types";
 import { getUniquePeople, getUniqueLocations, getUniqueTags } from "@/lib/storage";
+import { getTagColor } from "@/lib/tagColors";
 
 interface Props {
   filters: Filters;
@@ -23,11 +24,11 @@ const TYPE_LABELS: Record<Suggestion["type"], string> = {
   tag: "Tag",
 };
 
-const TYPE_COLORS: Record<Suggestion["type"], { bg: string; color: string }> = {
-  person: { bg: "var(--accent-light)", color: "var(--accent)" },
-  location: { bg: "var(--success-light)", color: "var(--success)" },
-  tag: { bg: "var(--info-light)", color: "var(--info)" },
-};
+function getTypeColor(type: Suggestion["type"], value: string): { bg: string; color: string } {
+  if (type === "tag") return getTagColor(value);
+  if (type === "location") return { bg: "var(--success-light)", color: "var(--success)" };
+  return { bg: "var(--accent-light)", color: "var(--accent)" };
+}
 
 export default function FilterBar({ filters, sort, onFiltersChange, onSortChange }: Props) {
   const [expanded, setExpanded] = useState(false);
@@ -160,8 +161,8 @@ export default function FilterBar({ filters, sort, onFiltersChange, onSortChange
                   <span style={{
                     fontSize: "0.7rem", fontWeight: 700,
                     padding: "2px 8px", borderRadius: 10,
-                    background: TYPE_COLORS[s.type].bg,
-                    color: TYPE_COLORS[s.type].color,
+                    background: getTypeColor(s.type, s.value).bg,
+                    color: getTypeColor(s.type, s.value).color,
                     textTransform: "uppercase", letterSpacing: "0.04em",
                     flexShrink: 0,
                   }}>

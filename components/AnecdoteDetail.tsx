@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Anecdote } from "@/lib/types";
 import { toggleFavorite } from "@/lib/storage";
+import { getTagColor } from "@/lib/tagColors";
 import AttachmentPreview from "./AttachmentPreview";
 import PhotoCarousel from "./PhotoCarousel";
 import MarkdownStory from "./MarkdownStory";
@@ -129,9 +130,12 @@ export default function AnecdoteDetail({ anecdote, onBack, onEdit, onDelete, onU
         <div className="detail-section">
           <h3>Tags</h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {anecdote.tags.map((t, i) => (
-              <span key={i} className="pill">{t}</span>
-            ))}
+            {anecdote.tags.map((t, i) => {
+              const tc = getTagColor(t);
+              return (
+                <span key={i} className="pill" style={{ background: tc.bg, color: tc.color }}>{t}</span>
+              );
+            })}
           </div>
         </div>
       )}

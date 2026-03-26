@@ -1,6 +1,7 @@
 "use client";
 
 import { Anecdote } from "@/lib/types";
+import { getTagColor } from "@/lib/tagColors";
 
 interface Props {
   anecdote: Anecdote;
@@ -72,6 +73,17 @@ export default function AnecdoteCard({ anecdote, onClick }: Props) {
             </svg>
             {audioCount}
           </span>
+        )}
+        {anecdote.tags.slice(0, 3).map((t) => {
+          const tc = getTagColor(t);
+          return (
+            <span key={t} className="pill" style={{ background: tc.bg, color: tc.color }}>
+              {t}
+            </span>
+          );
+        })}
+        {anecdote.tags.length > 3 && (
+          <span className="pill">+{anecdote.tags.length - 3}</span>
         )}
       </div>
 

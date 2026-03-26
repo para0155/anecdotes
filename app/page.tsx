@@ -18,11 +18,18 @@ import PeopleView from "@/components/PeopleView";
 import CalendarView from "@/components/CalendarView";
 import InsightsView from "@/components/InsightsView";
 import PdfExport from "@/components/PdfExport";
+import LockScreen, { isPinSet, isUnlocked } from "@/components/LockScreen";
+import PinSetup from "@/components/PinSetup";
+import CloudSync from "@/components/CloudSync";
+import TimelineView from "@/components/TimelineView";
+import { DailyReminderBanner, DailyReminderSettings, useDailyReminder } from "@/components/DailyReminder";
+import OfflineIndicator from "@/components/OfflineIndicator";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import dynamic from "next/dynamic";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
-type View = "list" | "detail" | "stats" | "settings" | "people" | "calendar" | "map" | "insights";
+type View = "list" | "detail" | "stats" | "settings" | "people" | "calendar" | "map" | "insights" | "timeline";
 
 const emptyFilters: Filters = {
   search: "", person: "", location: "", tag: "",
@@ -68,9 +75,13 @@ export default function Home() {
   const [prefillStory, setPrefillStory] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [locked, setLocked] = useState(true);
+  const [diceSpinning, setDiceSpinning] = useState(false);
+  const { showReminder, dismissReminder } = useDailyReminder();
 
   useEffect(() => {
     setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    setLocked(isPinSet() && !isUnlocked());
   }, []);
 
   const refresh = useCallback(() => {
@@ -118,10 +129,34 @@ export default function Home() {
     setShowForm(true);
   }
 
+  function handleSurpriseMe() {
+    const all = getAnecdotes();
+    if (all.length === 0) return;
+    setDiceSpinning(true);
+    setTimeout(() => {
+      const random = all[Math.floor(Math.random() * all.length)];
+      openDetail(random);
+      setDiceSpinning(false);
+    }, 500);
+  }
+
+  // Lock screen
+  if (locked) {
+    return (
+      <>
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
+        <LockScreen onUnlock={() => setLocked(false)} />
+      </>
+    );
+  }
+
   // Stats view
   if (view === "stats") {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <div className="container">
           <StatsView stats={getStats()} onBack={() => setView("list")} />
         </div>
@@ -133,6 +168,8 @@ export default function Home() {
   if (view === "people") {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <div className="container">
           <PeopleView onBack={() => setView("list")} onOpenDetail={openDetail} />
         </div>
@@ -144,6 +181,8 @@ export default function Home() {
   if (view === "calendar") {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <div className="container">
           <CalendarView onBack={() => setView("list")} onOpenDetail={openDetail} />
         </div>
@@ -155,6 +194,8 @@ export default function Home() {
   if (view === "map") {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
@@ -171,8 +212,23 @@ export default function Home() {
   if (view === "insights") {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <div className="container">
           <InsightsView onBack={() => setView("list")} />
+        </div>
+      </div>
+    );
+  }
+
+  // Timeline view
+  if (view === "timeline") {
+    return (
+      <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
+        <div className="container">
+          <TimelineView onBack={() => setView("list")} onOpenDetail={openDetail} />
         </div>
       </div>
     );
@@ -182,6 +238,8 @@ export default function Home() {
   if (view === "settings") {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <div className="container">
           <div className="animate-in">
             <div className="detail-header">
@@ -193,6 +251,18 @@ export default function Home() {
               </button>
             </div>
             <h1 style={{ marginBottom: 28 }}>Instellingen</h1>
+
+            <div className="card" style={{ marginBottom: 16 }}>
+              <PinSetup />
+            </div>
+
+            <div className="card" style={{ marginBottom: 16 }}>
+              <DailyReminderSettings />
+            </div>
+
+            <div className="card" style={{ marginBottom: 16 }}>
+              <CloudSync />
+            </div>
 
             <div className="card" style={{ marginBottom: 16 }}>
               <GistBackup onImported={refresh} />
@@ -217,6 +287,8 @@ export default function Home() {
   if (view === "detail" && viewing) {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         <div className="container">
           <AnecdoteDetail
             anecdote={viewing}
@@ -234,6 +306,8 @@ export default function Home() {
   if (totalCount === 0) {
     return (
       <div className="page-gradient">
+        <ServiceWorkerRegistration />
+        <OfflineIndicator />
         {/* Animated background orbs */}
         <div className="orb orb-1" />
         <div className="orb orb-2" />
@@ -378,6 +452,8 @@ export default function Home() {
   // Main list view (has anecdotes)
   return (
     <div className="page-gradient">
+      <ServiceWorkerRegistration />
+      <OfflineIndicator />
       {/* Subtle background orbs */}
       <div className="orb orb-1" style={{ opacity: 0.3 }} />
       <div className="orb orb-2" style={{ opacity: 0.2 }} />
@@ -408,6 +484,25 @@ export default function Home() {
                 <line x1="8" y1="23" x2="16" y2="23"/>
               </svg>
             </button>
+            {totalCount > 0 && (
+              <button
+                className="mic-btn"
+                onClick={handleSurpriseMe}
+                title="Verras me!"
+                style={{
+                  animation: diceSpinning ? "spin 0.5s ease-in-out" : undefined,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                  <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+                  <circle cx="16" cy="8" r="1.5" fill="currentColor"/>
+                  <circle cx="8" cy="16" r="1.5" fill="currentColor"/>
+                  <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
+                  <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                </svg>
+              </button>
+            )}
             <div style={{ position: "relative" }}>
               <button
                 className="btn btn-icon"
@@ -434,6 +529,15 @@ export default function Home() {
                         <line x1="3" y1="10" x2="21" y2="10"/>
                       </svg>
                       Kalender
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setView("timeline"); setShowMenu(false); }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="2" x2="12" y2="22"/>
+                        <circle cx="12" cy="6" r="2"/>
+                        <circle cx="12" cy="12" r="2"/>
+                        <circle cx="12" cy="18" r="2"/>
+                      </svg>
+                      Tijdlijn
                     </button>
                     <button className="dropdown-item" onClick={() => { setView("map"); setShowMenu(false); }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -474,6 +578,9 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Daily reminder banner */}
+        {showReminder && <DailyReminderBanner onDismiss={dismissReminder} />}
 
         {/* Memories / Flashbacks */}
         <Memories onOpenDetail={openDetail} />

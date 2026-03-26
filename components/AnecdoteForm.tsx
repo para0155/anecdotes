@@ -4,6 +4,7 @@ import { useState, useRef, KeyboardEvent, ChangeEvent } from "react";
 import { Anecdote, Attachment } from "@/lib/types";
 import { saveFile } from "@/lib/attachments";
 import AttachmentPreview from "./AttachmentPreview";
+import AutoTagSuggestions from "./AutoTagSuggestions";
 
 interface Props {
   initial?: Anecdote | null;
@@ -126,6 +127,17 @@ export default function AnecdoteForm({ initial, prefillStory, onSave, onCancel }
       <div className="form-group">
         <label className="form-label">Het verhaal *</label>
         <textarea id="story-input" className="input" placeholder="Vertel je anekdote..." value={story} onChange={e => setStory(e.target.value)} style={{ minHeight: 150 }} />
+        <AutoTagSuggestions
+          storyText={story}
+          currentTags={tags}
+          currentPeople={people}
+          currentLocation={location}
+          currentMood={mood}
+          onAcceptTag={(t) => { if (!tags.includes(t)) setTags([...tags, t]); }}
+          onAcceptPerson={(p) => { if (!people.includes(p)) setPeople([...people, p]); }}
+          onAcceptLocation={(l) => setLocation(l)}
+          onAcceptMood={(m) => setMood(m)}
+        />
       </div>
 
       {/* Mood */}

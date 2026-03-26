@@ -1,6 +1,7 @@
 "use client";
 
 import { Stats } from "@/lib/storage";
+import { getTagColor } from "@/lib/tagColors";
 
 interface Props {
   stats: Stats;
@@ -117,11 +118,14 @@ export default function StatsView({ stats, onBack }: Props) {
         <div className="detail-section">
           <h3>Meest gebruikte tags</h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {stats.topTags.map(t => (
-              <span key={t.name} className="pill" style={{ fontSize: "0.85rem", padding: "6px 14px" }}>
-                {t.name} <span style={{ opacity: 0.5, marginLeft: 2 }}>{t.count}</span>
-              </span>
-            ))}
+            {stats.topTags.map(t => {
+              const tc = getTagColor(t.name);
+              return (
+                <span key={t.name} className="pill" style={{ fontSize: "0.85rem", padding: "6px 14px", background: tc.bg, color: tc.color }}>
+                  {t.name} <span style={{ opacity: 0.5, marginLeft: 2 }}>{t.count}</span>
+                </span>
+              );
+            })}
           </div>
         </div>
       )}

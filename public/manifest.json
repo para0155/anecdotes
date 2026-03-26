@@ -6,11 +6,14 @@
   "display": "standalone",
   "background_color": "#06060b",
   "theme_color": "#06060b",
+  "orientation": "portrait-primary",
+  "categories": ["lifestyle", "productivity"],
   "icons": [
     {
       "src": "/icon",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
