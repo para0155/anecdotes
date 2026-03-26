@@ -6,6 +6,7 @@ import { toggleFavorite } from "@/lib/storage";
 import AttachmentPreview from "./AttachmentPreview";
 import PhotoCarousel from "./PhotoCarousel";
 import MarkdownStory from "./MarkdownStory";
+import ShareCard from "./ShareCard";
 
 interface Props {
   anecdote: Anecdote;
@@ -143,8 +144,11 @@ export default function AnecdoteDetail({ anecdote, onBack, onEdit, onDelete, onU
           </svg>
           Bewerken
         </button>
+        <ShareCard anecdote={anecdote} />
+      </div>
+      <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
         {!confirmDelete ? (
-          <button className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
+          <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => setConfirmDelete(true)}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -152,7 +156,7 @@ export default function AnecdoteDetail({ anecdote, onBack, onEdit, onDelete, onU
             Verwijder
           </button>
         ) : (
-          <button className="btn btn-danger" onClick={onDelete}>Zeker weten?</button>
+          <button className="btn btn-danger" style={{ flex: 1 }} onClick={onDelete}>Zeker weten?</button>
         )}
       </div>
 

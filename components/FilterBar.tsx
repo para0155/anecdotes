@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Filters, SortOption } from "@/lib/types";
 import { getUniquePeople, getUniqueLocations, getUniqueTags } from "@/lib/storage";
 
@@ -11,8 +11,29 @@ interface Props {
   onSortChange: (s: SortOption) => void;
 }
 
+interface Suggestion {
+  type: "person" | "location" | "tag";
+  label: string;
+  value: string;
+}
+
+const TYPE_LABELS: Record<Suggestion["type"], string> = {
+  person: "Persoon",
+  location: "Locatie",
+  tag: "Tag",
+};
+
+const TYPE_COLORS: Record<Suggestion["type"], { bg: string; color: string }> = {
+  person: { bg: "var(--accent-light)", color: "var(--accent)" },
+  location: { bg: "var(--success-light)", color: "var(--success)" },
+  tag: { bg: "var(--info-light)", color: "var(--info)" },
+};
+
 export default function FilterBar({ filters, sort, onFiltersChange, onSortChange }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
   const people = getUniquePeople();
   const locations = getUniqueLocations();
   const tags = getUniqueTags();
@@ -35,10 +56,63 @@ export default function FilterBar({ filters, sort, onFiltersChange, onSortChange
     });
   }
 
+  function handleSearchChange(value: string) {
+    update({ search: value });
+    if (value.length >= 1) {
+      const q = value.toLowerCase();
+      const results: Suggestion[] = [];
+
+      for (const p of people) {
+        if (p.toLowerCase().includes(q)) {
+          results.push({ type: "person", label: p, value: p });
+        }
+      }
+      for (const l of locations) {
+        if (l.toLowerCase().includes(q)) {
+          results.push({ type: "location", label: l, value: l });
+        }
+      }
+      for (const t of tags) {
+        if (t.toLowerCase().includes(q)) {
+          results.push({ type: "tag", label: t, value: t });
+        }
+      }
+
+      setSuggestions(results.slice(0, 8));
+      setShowSuggestions(results.length > 0);
+    } else {
+      setShowSuggestions(false);
+      setSuggestions([]);
+    }
+  }
+
+  function selectSuggestion(s: Suggestion) {
+    if (s.type === "person") {
+      update({ person: s.value, search: "" });
+    } else if (s.type === "location") {
+      update({ location: s.value, search: "" });
+    } else {
+      update({ tag: s.value, search: "" });
+    }
+    setShowSuggestions(false);
+    setSuggestions([]);
+  }
+
+  // Close suggestions on click outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: "flex", gap: 8, marginBottom: expanded ? 10 : 0 }}>
-        <div className="search-bar" style={{ flex: 1 }}>
+        <div className="search-bar" style={{ flex: 1, position: "relative" }} ref={searchRef}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -47,8 +121,57 @@ export default function FilterBar({ filters, sort, onFiltersChange, onSortChange
             type="text"
             placeholder="Zoek in je verhalen..."
             value={filters.search}
-            onChange={e => update({ search: e.target.value })}
+            onChange={e => handleSearchChange(e.target.value)}
+            onFocus={() => {
+              if (filters.search.length >= 1 && suggestions.length > 0) {
+                setShowSuggestions(true);
+              }
+            }}
           />
+          {/* Search suggestions dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div style={{
+              position: "absolute",
+              top: "calc(100% + 4px)",
+              left: 0, right: 0,
+              background: "var(--bg-card-solid)",
+              border: "1px solid var(--border-light)",
+              borderRadius: "var(--radius-sm)",
+              boxShadow: "var(--shadow-md)",
+              zIndex: 60,
+              overflow: "hidden",
+              animation: "scaleIn 0.15s ease-out",
+            }}>
+              {suggestions.map((s, i) => (
+                <button
+                  key={`${s.type}-${s.value}-${i}`}
+                  onClick={() => selectSuggestion(s)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "10px 14px", width: "100%",
+                    background: "none", border: "none", borderBottom: i < suggestions.length - 1 ? "1px solid var(--border)" : "none",
+                    cursor: "pointer", fontFamily: "inherit",
+                    color: "var(--text)", fontSize: "0.9rem",
+                    textAlign: "left", transition: "background 0.15s",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "var(--bg-hover)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "none")}
+                >
+                  <span style={{
+                    fontSize: "0.7rem", fontWeight: 700,
+                    padding: "2px 8px", borderRadius: 10,
+                    background: TYPE_COLORS[s.type].bg,
+                    color: TYPE_COLORS[s.type].color,
+                    textTransform: "uppercase", letterSpacing: "0.04em",
+                    flexShrink: 0,
+                  }}>
+                    {TYPE_LABELS[s.type]}
+                  </span>
+                  <span style={{ fontWeight: 500 }}>{s.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <button
           className="btn btn-icon"

@@ -13,8 +13,16 @@ import ExportImport from "@/components/ExportImport";
 import ThemeToggle from "@/components/ThemeToggle";
 import GistBackup from "@/components/GistBackup";
 import SwipeableCard from "@/components/SwipeableCard";
+import Memories from "@/components/Memories";
+import PeopleView from "@/components/PeopleView";
+import CalendarView from "@/components/CalendarView";
+import InsightsView from "@/components/InsightsView";
+import PdfExport from "@/components/PdfExport";
+import dynamic from "next/dynamic";
 
-type View = "list" | "detail" | "stats" | "settings";
+const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
+
+type View = "list" | "detail" | "stats" | "settings" | "people" | "calendar" | "map" | "insights";
 
 const emptyFilters: Filters = {
   search: "", person: "", location: "", tag: "",
@@ -121,6 +129,55 @@ export default function Home() {
     );
   }
 
+  // People view
+  if (view === "people") {
+    return (
+      <div className="page-gradient">
+        <div className="container">
+          <PeopleView onBack={() => setView("list")} onOpenDetail={openDetail} />
+        </div>
+      </div>
+    );
+  }
+
+  // Calendar view
+  if (view === "calendar") {
+    return (
+      <div className="page-gradient">
+        <div className="container">
+          <CalendarView onBack={() => setView("list")} onOpenDetail={openDetail} />
+        </div>
+      </div>
+    );
+  }
+
+  // Map view
+  if (view === "map") {
+    return (
+      <div className="page-gradient">
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
+          crossOrigin=""
+        />
+        <div className="container">
+          <MapView onBack={() => setView("list")} onOpenDetail={openDetail} />
+        </div>
+      </div>
+    );
+  }
+
+  // Insights view
+  if (view === "insights") {
+    return (
+      <div className="page-gradient">
+        <div className="container">
+          <InsightsView onBack={() => setView("list")} />
+        </div>
+      </div>
+    );
+  }
+
   // Settings view
   if (view === "settings") {
     return (
@@ -141,11 +198,14 @@ export default function Home() {
               <GistBackup onImported={refresh} />
             </div>
 
-            <div className="card">
+            <div className="card" style={{ marginBottom: 16 }}>
               <h3 style={{ fontSize: "0.95rem", fontWeight: 650, color: "var(--text)", marginBottom: 14 }}>
                 Exporteren / Importeren
               </h3>
-              <ExportImport onImported={refresh} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <ExportImport onImported={refresh} />
+                <PdfExport />
+              </div>
             </div>
           </div>
         </div>
@@ -361,6 +421,35 @@ export default function Home() {
                 <>
                   <div style={{ position: "fixed", inset: 0, zIndex: 40 }} onClick={() => setShowMenu(false)} />
                   <div className="dropdown-menu">
+                    <button className="dropdown-item" onClick={() => { setView("people"); setShowMenu(false); }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      Personen
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setView("calendar"); setShowMenu(false); }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      Kalender
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setView("map"); setShowMenu(false); }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="10" r="3"/>
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                      </svg>
+                      Kaart
+                    </button>
+                    <button className="dropdown-item" onClick={() => { setView("insights"); setShowMenu(false); }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                      </svg>
+                      AI Inzichten
+                    </button>
                     <button className="dropdown-item" onClick={() => { setView("stats"); setShowMenu(false); }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
@@ -385,6 +474,9 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Memories / Flashbacks */}
+        <Memories onOpenDetail={openDetail} />
 
         {/* Filters */}
         <FilterBar

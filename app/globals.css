@@ -1221,6 +1221,24 @@ input[type="checkbox"] {
   margin: 1.2em 0;
 }
 
+/* ==================== */
+/* MEMORY CARD          */
+/* ==================== */
+.memory-card {
+  background: linear-gradient(135deg, rgba(139, 108, 255, 0.08) 0%, rgba(108, 140, 255, 0.04) 100%);
+  border: 1px solid rgba(139, 108, 255, 0.2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  animation: fadeIn 0.4s ease-out;
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .memory-card {
+  background: linear-gradient(135deg, rgba(124, 92, 224, 0.06) 0%, rgba(92, 124, 224, 0.03) 100%);
+  border-color: rgba(124, 92, 224, 0.2);
+}
+
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;
