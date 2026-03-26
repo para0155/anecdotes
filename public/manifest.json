@@ -4,16 +4,11 @@
   "description": "Verzamel en bewaar je levensverhalen",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
+  "background_color": "#06060b",
+  "theme_color": "#06060b",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
+      "src": "/icon",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -32,9 +32,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nl" className={inter.variable}>
-      <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );

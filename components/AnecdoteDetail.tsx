@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Anecdote } from "@/lib/types";
 import { toggleFavorite } from "@/lib/storage";
 import AttachmentPreview from "./AttachmentPreview";
+import PhotoCarousel from "./PhotoCarousel";
+import MarkdownStory from "./MarkdownStory";
 
 interface Props {
   anecdote: Anecdote;
@@ -25,6 +27,9 @@ export default function AnecdoteDetail({ anecdote, onBack, onEdit, onDelete, onU
     const newFav = toggleFavorite(anecdote.id);
     onUpdate({ ...anecdote, favorite: newFav });
   }
+
+  const photos = anecdote.attachments?.filter(a => a.type === "image") || [];
+  const audioFiles = anecdote.attachments?.filter(a => a.type === "audio") || [];
 
   return (
     <div>
@@ -94,15 +99,25 @@ export default function AnecdoteDetail({ anecdote, onBack, onEdit, onDelete, onU
 
       <div className="detail-section">
         <h3>Verhaal</h3>
-        <div className="detail-story">{anecdote.story}</div>
+        <div className="detail-story">
+          <MarkdownStory content={anecdote.story} />
+        </div>
       </div>
 
-      {/* Attachments */}
-      {anecdote.attachments && anecdote.attachments.length > 0 && (
+      {/* Photo carousel */}
+      {photos.length > 0 && (
         <div className="detail-section">
-          <h3>Bijlagen</h3>
+          <h3>Foto&apos;s</h3>
+          <PhotoCarousel attachments={anecdote.attachments} />
+        </div>
+      )}
+
+      {/* Audio files */}
+      {audioFiles.length > 0 && (
+        <div className="detail-section">
+          <h3>Audio</h3>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            {anecdote.attachments.map(att => (
+            {audioFiles.map(att => (
               <AttachmentPreview key={att.id} attachment={att} large />
             ))}
           </div>
